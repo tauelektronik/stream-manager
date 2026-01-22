@@ -171,35 +171,34 @@ class StreamManager:
             time.sleep(3)
             logger.info(f"[{stream_id}] Browser iniciado")
 
-            # 5. Iniciar FFmpeg para capturar e enviar para RTMP
-            audio_opts = []
-            if stream.get('audio', True):
-                audio_opts = [
-                    '-f', 'pulse',
-                    '-i', 'default'
-                ]
+            # 5. Criar diretório HLS para este stream
+            hls_stream_dir = HLS_DIR / stream_id
+            hls_stream_dir.mkdir(parents=True, exist_ok=True)
+            os.chmod(hls_stream_dir, 0o755)
+            logger.info(f"[{stream_id}] Diretório HLS criado: {hls_stream_dir}")
 
+            # 6. Iniciar FFmpeg para capturar e gerar HLS diretamente
             ffmpeg_cmd = [
                 'ffmpeg',
                 '-y',
                 '-f', 'x11grab',
-                '-framerate', '30',
+                '-framerate', '15',
                 '-video_size', resolution,
                 '-i', f':{display}',
-            ] + audio_opts + [
                 '-c:v', 'libx264',
-                '-preset', 'veryfast',
+                '-preset', 'ultrafast',
                 '-tune', 'zerolatency',
-                '-b:v', '2500k',
-                '-maxrate', '2500k',
-                '-bufsize', '5000k',
+                '-b:v', '1500k',
+                '-maxrate', '1500k',
+                '-bufsize', '3000k',
                 '-pix_fmt', 'yuv420p',
-                '-g', '60',
-                '-c:a', 'aac',
-                '-b:a', '128k',
-                '-ar', '44100',
-                '-f', 'flv',
-                f'rtmp://127.0.0.1:1935/live/{stream_id}'
+                '-g', '30',
+                '-f', 'hls',
+                '-hls_time', '2',
+                '-hls_list_size', '10',
+                '-hls_flags', 'delete_segments+append_list',
+                '-hls_segment_filename', f'{hls_stream_dir}/segment_%03d.ts',
+                f'{hls_stream_dir}/index.m3u8'
             ]
 
             ffmpeg_log = open(LOGS_DIR / f'ffmpeg-{stream_id}.log', 'w')
