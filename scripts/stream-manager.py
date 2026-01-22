@@ -126,7 +126,9 @@ class StreamManager:
             xvfb_proc = subprocess.Popen(
                 xvfb_cmd,
                 stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL
+                stderr=subprocess.DEVNULL,
+                stdin=subprocess.DEVNULL,
+                start_new_session=True
             )
             self.processes[stream_id]['xvfb'] = xvfb_proc
             time.sleep(1)
@@ -165,7 +167,9 @@ class StreamManager:
                 browser_cmd,
                 env=browser_env,
                 stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL
+                stderr=subprocess.DEVNULL,
+                stdin=subprocess.DEVNULL,
+                start_new_session=True
             )
             self.processes[stream_id]['browser'] = browser_proc
             time.sleep(3)
@@ -206,7 +210,9 @@ class StreamManager:
                 ffmpeg_cmd,
                 env={**os.environ, 'DISPLAY': f':{display}'},
                 stdout=ffmpeg_log,
-                stderr=ffmpeg_log
+                stderr=ffmpeg_log,
+                stdin=subprocess.DEVNULL,
+                start_new_session=True
             )
             self.processes[stream_id]['ffmpeg'] = ffmpeg_proc
             self.processes[stream_id]['ffmpeg_log'] = ffmpeg_log
