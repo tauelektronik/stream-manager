@@ -1,0 +1,15 @@
+# Stream Manager - Dependências Python
+
+# Framework Web
+flask>=2.3.0
+flask-socketio>=5.3.0
+flask-cors>=4.0.0
+
+# WebSocket async
+eventlet>=0.33.0
+
+# Monitoramento do sistema
+psutil>=5.9.0
+
+# Utilitários
+python-dotenv>=1.0.0

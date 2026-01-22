@@ -1,0 +1,25 @@
+{
+  "streams": [
+    {
+      "id": "youtube_exemplo",
+      "name": "YouTube - Exemplo",
+      "url": "https://www.youtube.com/watch?v=jfKfPfyJRdk",
+      "profile": "youtube",
+      "resolution": "1280x720",
+      "audio": true
+    },
+    {
+      "id": "globoplay_globo",
+      "name": "Globoplay - TV Globo",
+      "url": "https://globoplay.globo.com/tv-globo/ao-vivo/",
+      "profile": "globoplay",
+      "resolution": "1920x1080",
+      "audio": true
+    }
+  ],
+  "server": {
+    "port": 8080,
+    "hls_time": 2,
+    "hls_list_size": 5
+  }
+}

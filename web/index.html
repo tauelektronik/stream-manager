@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stream Manager</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📺</text></svg>">
+</head>
+<body>
+    <div class="app">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-left">
+                <h1>Stream Manager</h1>
+                <span class="version">v1.0</span>
+            </div>
+            <div class="header-right">
+                <div class="system-stats">
+                    <div class="stat">
+                        <span class="stat-label">CPU</span>
+                        <span class="stat-value" id="cpu-stat">0%</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">RAM</span>
+                        <span class="stat-value" id="ram-stat">0%</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Streams</span>
+                        <span class="stat-value" id="streams-stat">0/0</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main">
+            <!-- Toolbar -->
+            <div class="toolbar">
+                <button class="btn btn-primary" id="btn-add-stream">
+                    <span class="icon">+</span>
+                    Novo Stream
+                </button>
+                <button class="btn btn-secondary" id="btn-start-all">
+                    Iniciar Todos
+                </button>
+                <button class="btn btn-danger" id="btn-stop-all">
+                    Parar Todos
+                </button>
+                <div class="toolbar-spacer"></div>
+                <button class="btn btn-icon" id="btn-refresh" title="Atualizar">
+                    ↻
+                </button>
+            </div>
+
+            <!-- Streams Grid -->
+            <div class="streams-container" id="streams-container">
+                <!-- Cards serão inseridos aqui via JavaScript -->
+                <div class="empty-state" id="empty-state">
+                    <div class="empty-icon">📺</div>
+                    <h3>Nenhum stream configurado</h3>
+                    <p>Clique em "Novo Stream" para adicionar seu primeiro stream</p>
+                </div>
+            </div>
+        </main>
+
+        <!-- Modal: Adicionar/Editar Stream -->
+        <div class="modal" id="modal-stream">
+            <div class="modal-overlay"></div>
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="modal-stream-title">Novo Stream</h2>
+                    <button class="btn-close" id="btn-close-modal">&times;</button>
+                </div>
+                <form id="form-stream">
+                    <div class="form-group">
+                        <label for="stream-id">ID (único, sem espaços)</label>
+                        <input type="text" id="stream-id" name="id" required pattern="[a-zA-Z0-9_-]+" placeholder="youtube1">
+                    </div>
+                    <div class="form-group">
+                        <label for="stream-name">Nome</label>
+                        <input type="text" id="stream-name" name="name" required placeholder="YouTube - Canal X">
+                    </div>
+                    <div class="form-group">
+                        <label for="stream-url">URL</label>
+                        <input type="url" id="stream-url" name="url" required placeholder="https://www.youtube.com/watch?v=...">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="stream-resolution">Resolução</label>
+                            <select id="stream-resolution" name="resolution">
+                                <option value="1920x1080">1920x1080 (Full HD)</option>
+                                <option value="1280x720" selected>1280x720 (HD)</option>
+                                <option value="854x480">854x480 (SD)</option>
+                                <option value="640x360">640x360 (Low)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="stream-profile">Perfil do Navegador</label>
+                            <input type="text" id="stream-profile" name="profile" placeholder="Deixe vazio para usar o ID">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="stream-audio" name="audio" checked>
+                            Capturar áudio
+                        </label>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" id="btn-cancel-stream">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Salvar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Modal: Links do Stream -->
+        <div class="modal" id="modal-links">
+            <div class="modal-overlay"></div>
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Links do Stream</h2>
+                    <button class="btn-close" id="btn-close-links">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="link-group">
+                        <label>Link HLS (VLC, navegadores)</label>
+                        <div class="link-input">
+                            <input type="text" id="link-hls" readonly>
+                            <button class="btn btn-icon" onclick="copyLink('link-hls')" title="Copiar">📋</button>
+                        </div>
+                    </div>
+                    <div class="link-group">
+                        <label>Link RTMP (OBS, FFmpeg)</label>
+                        <div class="link-input">
+                            <input type="text" id="link-rtmp" readonly>
+                            <button class="btn btn-icon" onclick="copyLink('link-rtmp')" title="Copiar">📋</button>
+                        </div>
+                    </div>
+                    <div class="link-group">
+                        <label>Abrir no VLC</label>
+                        <div class="link-input">
+                            <input type="text" id="link-vlc" readonly>
+                            <button class="btn btn-icon" onclick="copyLink('link-vlc')" title="Copiar">📋</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal: Logs -->
+        <div class="modal modal-large" id="modal-logs">
+            <div class="modal-overlay"></div>
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Logs: <span id="logs-stream-name"></span></h2>
+                    <button class="btn-close" id="btn-close-logs">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <pre id="logs-content" class="logs-content"></pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toast Notifications -->
+        <div class="toast-container" id="toast-container"></div>
+    </div>
+
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

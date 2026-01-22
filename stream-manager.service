@@ -1,0 +1,32 @@
+[Unit]
+Description=Stream Manager - Browser Streaming Service
+Documentation=https://github.com/seu-usuario/stream-manager
+After=network.target nginx.service
+Wants=nginx.service
+
+[Service]
+Type=simple
+User=root
+Group=root
+WorkingDirectory=/opt/stream-manager
+Environment=PATH=/opt/stream-manager/venv/bin:/usr/local/bin:/usr/bin:/bin
+Environment=PYTHONUNBUFFERED=1
+
+# Comando principal
+ExecStart=/opt/stream-manager/venv/bin/python /opt/stream-manager/scripts/stream-manager.py
+
+# Restart configuration
+Restart=always
+RestartSec=5
+
+# Limites
+LimitNOFILE=65535
+LimitNPROC=4096
+
+# Logs
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=stream-manager
+
+[Install]
+WantedBy=multi-user.target
